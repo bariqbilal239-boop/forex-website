@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { GoldCalculator, GoldChart } from "@/components/gold-tools";
-import { ArticleCard, Badge, Change, MarketNote } from "@/components/ui";
+import { TradingViewPrice } from "@/components/tradingview-chart";
+import { ArticleCard, Badge } from "@/components/ui";
 import { getMarkets, getPosts } from "@/lib/api";
-import { findQuote, formatPrice, sampleMarkets } from "@/lib/markets";
+import { findQuote, sampleMarkets } from "@/lib/markets";
 
 export const metadata: Metadata = { title: "Gold Rates & Analysis" };
 
@@ -26,7 +27,6 @@ const factors = [
 export default async function GoldPage() {
   const [posts, market] = await Promise.all([getPosts(), getMarkets()]);
   const gold = findQuote(market, "XAU/USD") ?? sampleMarkets.quotes[0];
-  const dayChange = gold.price - gold.price / (1 + gold.change / 100);
   const goldPosts = posts.filter((a) => /gold/i.test(a.category + a.title));
   return (
     <>
@@ -34,13 +34,11 @@ export default async function GoldPage() {
         <div className="container-x py-12 sm:py-16">
           <div className="flex flex-wrap items-center gap-3">
             <span className="eyebrow">XAU/USD · Spot gold</span>
-            <Badge tone={market.mode === "delayed" ? "gold" : "info"}>{market.mode === "delayed" ? "Delayed data" : "Illustrative sample"}</Badge>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-bull/15 px-2.5 py-1 text-xs font-semibold text-green-400"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" />Live</span>
           </div>
-          <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-2">
-            <h1 className="num text-5xl font-extrabold tracking-tight sm:text-6xl">{formatPrice(gold.symbol, gold.price)}</h1>
-            <div className="pb-2"><Change value={gold.change} /> <span className="num text-sm text-muted">{dayChange >= 0 ? "+" : ""}{dayChange.toFixed(2)} today</span></div>
-          </div>
-          <MarketNote market={market} className="mt-3" />
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Gold Rates &amp; Analysis</h1>
+          <TradingViewPrice symbol="OANDA:XAUUSD" className="mt-4 h-[190px] max-w-3xl sm:h-[220px]" />
+          <p className="mt-2 text-xs text-muted">Live price by TradingView · for information only, not for trading</p>
         </div>
       </section>
 

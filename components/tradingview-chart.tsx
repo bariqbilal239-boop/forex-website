@@ -3,55 +3,91 @@
 import { useEffect, useRef } from "react";
 import { cn } from "./ui";
 
-type Props = {
-  symbol?: string;
-  interval?: string;
-  className?: string;
-};
+const EMBED_URL = "https://s3.tradingview.com/external-embedding/embed-widget-";
 
-/** Live TradingView Advanced Chart. Loads TradingView's embed script in the browser only. */
-export function TradingViewChart({ symbol = "OANDA:XAUUSD", interval = "15", className }: Props) {
+/**
+ * Embeds any TradingView widget (https://www.tradingview.com/widget-docs/).
+ * The size lives on the outer wrapper because TradingView's script forces `height: 100%` on its container.
+ */
+export function TradingViewWidget({ widget, config, className }: { widget: string; config: Record<string, unknown>; className?: string }) {
   const container = useRef<HTMLDivElement>(null);
+  const json = JSON.stringify(config);
 
   useEffect(() => {
     const el = container.current;
     if (!el) return;
     el.innerHTML = "";
 
-    const widget = document.createElement("div");
-    widget.className = "tradingview-widget-container__widget";
-    widget.style.height = "100%";
-    widget.style.width = "100%";
+    const inner = document.createElement("div");
+    inner.className = "tradingview-widget-container__widget";
+    inner.style.height = "100%";
+    inner.style.width = "100%";
 
     const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.src = `${EMBED_URL}${widget}.js`;
     script.type = "text/javascript";
     script.async = true;
-    script.innerHTML = JSON.stringify({
-      autosize: true,
-      symbol,
-      interval,
-      timezone: "Asia/Karachi",
-      theme: "dark",
-      style: "1",
-      locale: "en",
-      backgroundColor: "rgba(17, 24, 39, 1)",
-      gridColor: "rgba(36, 48, 68, 0.6)",
-      allow_symbol_change: true,
-      calendar: false,
-      support_host: "https://www.tradingview.com",
-    });
+    script.innerHTML = json;
 
-    el.append(widget, script);
+    el.append(inner, script);
     return () => {
       el.innerHTML = "";
     };
-  }, [symbol, interval]);
+  }, [widget, json]);
 
-  // TradingView's script forces `height: 100%` on its container, so the size lives on this outer wrapper.
   return (
-    <div className={cn("w-full overflow-hidden rounded-xl bg-midnight", className)}>
+    <div className={cn("w-full overflow-hidden", className)}>
       <div ref={container} className="tradingview-widget-container h-full w-full" />
     </div>
+  );
+}
+
+/** Full interactive chart. */
+export function TradingViewChart({ symbol = "OANDA:XAUUSD", interval = "15", className }: { symbol?: string; interval?: string; className?: string }) {
+  return (
+    <TradingViewWidget
+      widget="advanced-chart"
+      className={cn("rounded-xl bg-midnight", className)}
+      config={{
+        autosize: true,
+        symbol,
+        interval,
+        timezone: "Asia/Karachi",
+        theme: "dark",
+        style: "1",
+        locale: "en",
+        backgroundColor: "rgba(17, 24, 39, 1)",
+        gridColor: "rgba(36, 48, 68, 0.6)",
+        allow_symbol_change: true,
+        calendar: false,
+        support_host: "https://www.tradingview.com",
+      }}
+    />
+  );
+}
+
+/** Live price, change and mini chart for one symbol. */
+export function TradingViewPrice({ symbol = "OANDA:XAUUSD", range = "1D", className }: { symbol?: string; range?: string; className?: string }) {
+  return (
+    <TradingViewWidget
+      widget="mini-symbol-overview"
+      className={className}
+      config={{
+        symbol,
+        width: "100%",
+        height: "100%",
+        locale: "en",
+        dateRange: range,
+        colorTheme: "dark",
+        isTransparent: true,
+        autosize: true,
+        largeChartUrl: "",
+        chartOnly: false,
+        noTimeScale: false,
+        trendLineColor: "rgba(212, 175, 55, 1)",
+        underLineColor: "rgba(212, 175, 55, 0.25)",
+        underLineBottomColor: "rgba(212, 175, 55, 0)",
+      }}
+    />
   );
 }

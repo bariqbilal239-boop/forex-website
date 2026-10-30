@@ -38,7 +38,7 @@ export function GoldCalculator({ spot, fx, delayed }: { spot: number; fx: Record
       <div>
         <span className="eyebrow">Gold calculator</span>
         <h2 className="mt-3 text-2xl font-bold tracking-tight">Convert gold to your local price</h2>
-        <p className="mt-2 text-sm text-muted">{delayed ? "Based on the delayed spot price." : "Based on a sample spot price."} Local dealer prices include premiums and taxes.</p>
+        <p className="mt-2 text-sm text-muted">{delayed ? "Based on the delayed spot price from our data feed." : "Uses a sample spot price until a market-data key is added — not the live chart price."} Local dealer prices include premiums and taxes.</p>
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <label className="text-sm">
             <span className="mb-1.5 block text-muted">Quantity</span>

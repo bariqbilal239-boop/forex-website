@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { NewsletterForm } from "@/components/layout";
-import { ArticleCard, Badge, Change, LineChart, MarketBadge, MarketNote, SectionHeading, Thumb, cn } from "@/components/ui";
+import { TradingViewPrice } from "@/components/tradingview-chart";
+import { ArticleCard, Badge, Change, LineChart, MarketNote, SectionHeading, Thumb, cn } from "@/components/ui";
 import { getMarkets, getPosts, getSite } from "@/lib/api";
 import { events, fxLevels, news } from "@/lib/data";
-import { findQuote, formatPrice, sampleMarkets } from "@/lib/markets";
+import { findQuote, formatPrice } from "@/lib/markets";
 
 const OVERVIEW = ["XAU/USD", "BTC/USD", "EUR/USD", "GBP/USD", "USD/JPY"];
 
@@ -15,7 +16,6 @@ const toHref = (link?: string) => (link && ((link.startsWith("/") && !link.start
 
 export default async function HomePage() {
   const [posts, site, market] = await Promise.all([getPosts(), getSite(), getMarkets()]);
-  const gold = findQuote(market, "XAU/USD") ?? sampleMarkets.quotes[0];
   const overview = OVERVIEW.map((s) => findQuote(market, s)).filter((q) => q !== undefined);
   const hero = site.hero ?? {};
   const stats = statLabels.map((label, i) => [hero.stats?.[i] || defaultStats[i], label]);
@@ -51,26 +51,15 @@ export default async function HomePage() {
             </dl>
           </div>
           <div className="card p-5 sm:p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-sm text-muted">XAU/USD · Spot Gold</p>
-                <p className="num mt-1 text-3xl font-bold">{formatPrice(gold.symbol, gold.price)}</p>
-                <Change value={gold.change} />
-              </div>
-              <MarketBadge mode={market.mode} />
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted">XAU/USD · Spot Gold</p>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-bull/15 px-2.5 py-1 text-xs font-semibold text-green-400"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400" />Live</span>
             </div>
-            <div className="mt-6 h-48 sm:h-56">
-              <LineChart seed={7} start={2650} />
+            <TradingViewPrice symbol="OANDA:XAUUSD" className="mt-3 h-[300px] sm:h-[340px]" />
+            <div className="mt-4 flex items-center justify-between border-t border-line pt-4 text-xs text-muted">
+              <span>Live price by TradingView</span>
+              <Link href="/gold" className="font-semibold text-gold">Full gold dashboard →</Link>
             </div>
-            <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-xs">
-              {[["Day high", formatPrice(gold.symbol, gold.high)], ["Day low", formatPrice(gold.symbol, gold.low)], ["Trend", "Bullish"]].map(([k, v]) => (
-                <div key={k}>
-                  <p className="text-muted">{k}</p>
-                  <p className={cn("num mt-1 font-semibold", v === "Bullish" && "text-green-400")}>{v}</p>
-                </div>
-              ))}
-            </div>
-            <MarketNote market={market} className="mt-4" />
           </div>
         </div>
       </section>
