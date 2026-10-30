@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { GoldCalculator, GoldChart } from "@/components/gold-tools";
-import { ArticleCard, Badge, Change, SampleNote } from "@/components/ui";
-import { getPosts } from "@/lib/api";
+import { ArticleCard, Badge, Change, MarketNote } from "@/components/ui";
+import { getMarkets, getPosts } from "@/lib/api";
+import { findQuote, formatPrice, sampleMarkets } from "@/lib/markets";
 
 export const metadata: Metadata = { title: "Gold Rates & Analysis" };
 
@@ -23,7 +24,9 @@ const factors = [
 ];
 
 export default async function GoldPage() {
-  const posts = await getPosts();
+  const [posts, market] = await Promise.all([getPosts(), getMarkets()]);
+  const gold = findQuote(market, "XAU/USD") ?? sampleMarkets.quotes[0];
+  const dayChange = gold.price - gold.price / (1 + gold.change / 100);
   const goldPosts = posts.filter((a) => /gold/i.test(a.category + a.title));
   return (
     <>
@@ -31,13 +34,13 @@ export default async function GoldPage() {
         <div className="container-x py-12 sm:py-16">
           <div className="flex flex-wrap items-center gap-3">
             <span className="eyebrow">XAU/USD · Spot gold</span>
-            <Badge tone="info">Illustrative sample</Badge>
+            <Badge tone={market.mode === "delayed" ? "gold" : "info"}>{market.mode === "delayed" ? "Delayed data" : "Illustrative sample"}</Badge>
           </div>
           <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-2">
-            <h1 className="num text-5xl font-extrabold tracking-tight sm:text-6xl">2,748.30</h1>
-            <div className="pb-2"><Change value={0.67} /> <span className="num text-sm text-muted">+18.30 today</span></div>
+            <h1 className="num text-5xl font-extrabold tracking-tight sm:text-6xl">{formatPrice(gold.symbol, gold.price)}</h1>
+            <div className="pb-2"><Change value={gold.change} /> <span className="num text-sm text-muted">{dayChange >= 0 ? "+" : ""}{dayChange.toFixed(2)} today</span></div>
           </div>
-          <SampleNote className="mt-3" />
+          <MarketNote market={market} className="mt-3" />
         </div>
       </section>
 
@@ -58,7 +61,7 @@ export default async function GoldPage() {
           </div>
         </div>
 
-        <GoldCalculator />
+        <GoldCalculator spot={gold.price} fx={market.fx} delayed={market.mode === "delayed"} />
 
         <section>
           <h2 className="mb-6 text-2xl font-bold tracking-tight">Scenarios</h2>
@@ -99,7 +102,7 @@ export default async function GoldPage() {
         </section>
 
         <p className="rounded-xl border border-line p-5 text-xs leading-relaxed text-muted">
-          <b className="text-ink">Educational disclaimer:</b> Gold analysis on this page is for educational purposes only. Scenarios and levels are not guarantees of future performance. Prices are illustrative samples, not live quotes.
+          <b className="text-ink">Educational disclaimer:</b> Gold analysis on this page is for educational purposes only. Scenarios and levels are not guarantees of future performance. Charts are illustrative; prices are delayed or sample values and must not be used for trading.
         </p>
       </div>
     </>

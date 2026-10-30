@@ -78,7 +78,7 @@ export default async function ArticlePage({ params }: Props) {
               <h2 id="technical-picture">Technical picture</h2>
               <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-4">
                 <div className="h-56"><LineChart seed={7} start={2650} light /></div>
-                <p className="mt-2 text-xs text-slate-500">XAU/USD daily · illustrative sample data</p>
+                <p className="mt-2 text-xs text-slate-500">XAU/USD daily · illustrative chart</p>
               </div>
               <p>Price continues to respect the rising 50-day moving average. Daily RSI has cooled from overbought territory without breaking trend structure.</p>
               <h2 id="scenarios">Scenarios</h2>

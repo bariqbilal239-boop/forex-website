@@ -1,7 +1,6 @@
-// Sample content for the design phase. All market values are illustrative, not live quotes.
-// Replace with API calls once the Node.js backend is built.
+// Sample/fallback content. Posts and site text come from the backend (lib/api.ts) when it is running;
+// news, calendar and FX levels are still edited here.
 
-export type Market = { symbol: string; name: string; price: string; change: number; seed: number };
 export type Article = {
   slug: string;
   category: string;
@@ -36,22 +35,6 @@ export const authors = {
   PN: { name: "Priya Nair", role: "Trading Educator" },
 } as const;
 export type AuthorId = keyof typeof authors;
-
-export const markets: Market[] = [
-  { symbol: "XAU/USD", name: "Gold Spot", price: "2,748.30", change: 0.67, seed: 7 },
-  { symbol: "BTC/USD", name: "Bitcoin", price: "71,420", change: 2.14, seed: 11 },
-  { symbol: "EUR/USD", name: "Euro / Dollar", price: "1.0832", change: -0.21, seed: 3 },
-  { symbol: "GBP/USD", name: "Pound / Dollar", price: "1.3021", change: 0.08, seed: 5 },
-  { symbol: "DXY", name: "US Dollar Index", price: "104.62", change: -0.34, seed: 13 },
-];
-
-export const tickerItems: Pick<Market, "symbol" | "price" | "change">[] = [
-  ...markets,
-  { symbol: "XAG/USD", price: "32.84", change: 1.12 },
-  { symbol: "USD/JPY", price: "152.31", change: 0.41 },
-  { symbol: "ETH/USD", price: "2,634", change: -1.08 },
-  { symbol: "WTI", price: "69.42", change: -0.86 },
-];
 
 const sampleArticles: (Omit<Article, "author"> & { author: AuthorId })[] = [
   { slug: "central-banks-buying-gold", category: "Gold Analysis", title: "Why central banks keep buying gold — and what it means for price floors", excerpt: "Official-sector demand has reshaped gold's downside. We quantify the effect.", author: "SM", date: "Oct 30, 2026", minutes: 8, label: "Analysis" },

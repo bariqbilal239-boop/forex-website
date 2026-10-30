@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { tickerItems } from "@/lib/data";
+import { formatPrice, type MarketData } from "@/lib/markets";
 import { postToBackend } from "@/lib/submit";
 import { cn } from "./ui";
 
@@ -29,20 +29,22 @@ export function Logo() {
   );
 }
 
-export function Ticker() {
-  const items = [...tickerItems, ...tickerItems];
+export function Ticker({ market }: { market: MarketData }) {
+  const quotes = market.quotes;
+  const items = [...quotes, ...quotes];
+  const note = market.mode === "delayed" ? `Delayed data · ${market.source}` : "Illustrative sample data";
   return (
-    <div className="overflow-hidden border-b border-line bg-midnight text-xs" aria-label="Sample market ticker">
+    <div className="overflow-hidden border-b border-line bg-midnight text-xs" aria-label={`Market ticker — ${note}`}>
       <div className="animate-ticker flex w-max gap-8 py-2 pl-4">
         {items.map((m, i) => (
           <span key={i} className="flex items-center gap-2 whitespace-nowrap">
             <b>{m.symbol}</b>
-            <span className="num text-muted">{m.price}</span>
+            <span className="num text-muted">{formatPrice(m.symbol, m.price)}</span>
             <span className={cn("num", m.change >= 0 ? "text-green-400" : "text-red-400")}>
               {m.change >= 0 ? "+" : ""}
               {m.change.toFixed(2)}%
             </span>
-            {i % tickerItems.length === tickerItems.length - 1 && <span className="text-muted/70">· Illustrative sample data</span>}
+            {i % quotes.length === quotes.length - 1 && <span className="text-muted/70">· {note}</span>}
           </span>
         ))}
       </div>
@@ -159,7 +161,7 @@ export function NewsletterForm({ compact }: { compact?: boolean }) {
         <button disabled={state === "sending"} className="btn-gold shrink-0">{state === "sending" ? "Subscribing…" : "Subscribe"}</button>
       </div>
       <p role="status" className={cn("mt-3 text-sm", state === "ok" ? "text-green-400" : "text-red-400")}>
-        {state === "ok" && "You're subscribed. Thanks for joining the Daily Gold Brief."}
+        {state === "ok" && "Almost done — check your inbox and click the link to confirm."}
         {state === "invalid" && "Please enter a valid email address."}
         {state === "failed" && "We couldn't subscribe you right now. Please try again."}
       </p>

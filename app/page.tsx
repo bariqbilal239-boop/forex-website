@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { NewsletterForm } from "@/components/layout";
-import { ArticleCard, Badge, Change, LineChart, SampleNote, SectionHeading, Thumb, cn } from "@/components/ui";
-import { getPosts, getSite } from "@/lib/api";
-import { events, fxLevels, markets, news } from "@/lib/data";
+import { ArticleCard, Badge, Change, LineChart, MarketBadge, MarketNote, SectionHeading, Thumb, cn } from "@/components/ui";
+import { getMarkets, getPosts, getSite } from "@/lib/api";
+import { events, fxLevels, news } from "@/lib/data";
+import { findQuote, formatPrice, sampleMarkets } from "@/lib/markets";
+
+const OVERVIEW = ["XAU/USD", "BTC/USD", "EUR/USD", "GBP/USD", "USD/JPY"];
 
 const statLabels = ["Years of coverage", "Published analyses", "Newsletter readers"];
 const defaultStats = ["12+", "2,400+", "85k"];
@@ -11,7 +14,9 @@ const defaultStats = ["12+", "2,400+", "85k"];
 const toHref = (link?: string) => (link && ((link.startsWith("/") && !link.startsWith("//")) || link.startsWith("https://")) ? link : "/gold");
 
 export default async function HomePage() {
-  const [posts, site] = await Promise.all([getPosts(), getSite()]);
+  const [posts, site, market] = await Promise.all([getPosts(), getSite(), getMarkets()]);
+  const gold = findQuote(market, "XAU/USD") ?? sampleMarkets.quotes[0];
+  const overview = OVERVIEW.map((s) => findQuote(market, s)).filter((q) => q !== undefined);
   const hero = site.hero ?? {};
   const stats = statLabels.map((label, i) => [hero.stats?.[i] || defaultStats[i], label]);
   const featured = posts[0];
@@ -49,41 +54,41 @@ export default async function HomePage() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm text-muted">XAU/USD · Spot Gold</p>
-                <p className="num mt-1 text-3xl font-bold">2,748.30</p>
-                <Change value={0.67} />
+                <p className="num mt-1 text-3xl font-bold">{formatPrice(gold.symbol, gold.price)}</p>
+                <Change value={gold.change} />
               </div>
-              <Badge tone="info">Sample</Badge>
+              <MarketBadge mode={market.mode} />
             </div>
             <div className="mt-6 h-48 sm:h-56">
               <LineChart seed={7} start={2650} />
             </div>
             <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-xs">
-              {[["Day high", "2,756.10"], ["Day low", "2,731.40"], ["Trend", "Bullish"]].map(([k, v]) => (
+              {[["Day high", formatPrice(gold.symbol, gold.high)], ["Day low", formatPrice(gold.symbol, gold.low)], ["Trend", "Bullish"]].map(([k, v]) => (
                 <div key={k}>
                   <p className="text-muted">{k}</p>
                   <p className={cn("num mt-1 font-semibold", v === "Bullish" && "text-green-400")}>{v}</p>
                 </div>
               ))}
             </div>
-            <SampleNote className="mt-4" />
+            <MarketNote market={market} className="mt-4" />
           </div>
         </div>
       </section>
 
       {/* Market overview */}
       <section className="container-x py-16 sm:py-20">
-        <SectionHeading eyebrow="Market overview" title="Key markets at a glance" action={<SampleNote />} />
+        <SectionHeading eyebrow="Market overview" title="Key markets at a glance" action={<MarketNote market={market} />} />
         <div className="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-5">
-          {markets.map((m) => (
+          {overview.map((m, i) => (
             <div key={m.symbol} className="card min-w-[72%] snap-start p-5 sm:min-w-0">
               <div className="flex items-center justify-between">
                 <b>{m.symbol}</b>
                 <Change value={m.change} />
               </div>
               <p className="text-xs text-muted">{m.name}</p>
-              <p className="num mt-3 text-2xl font-bold">{m.price}</p>
+              <p className="num mt-3 text-2xl font-bold">{formatPrice(m.symbol, m.price)}</p>
               <div className="mt-3 h-14">
-                <LineChart seed={m.seed} points={40} up={m.change >= 0} />
+                <LineChart seed={i * 4 + 3} points={40} up={m.change >= 0} />
               </div>
             </div>
           ))}

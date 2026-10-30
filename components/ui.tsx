@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { series, toPath } from "@/lib/chart";
 import type { Article } from "@/lib/data";
+import { marketLabel, type MarketData } from "@/lib/markets";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -44,13 +45,18 @@ export function Badge({ children, tone = "default" }: { children: React.ReactNod
   return <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold", tones[tone])}>{children}</span>;
 }
 
-export function SampleNote({ className }: { className?: string }) {
+/** States where prices come from. Always shown next to prices so sample data is never mistaken for live quotes. */
+export function MarketNote({ market, className }: { market: Pick<MarketData, "mode" | "source" | "updated">; className?: string }) {
   return (
     <p className={cn("flex items-center gap-2 text-xs text-muted", className)}>
-      <span className="h-2 w-2 rounded-full bg-info" />
-      Illustrative sample values — not live quotes
+      <span className={cn("h-2 w-2 shrink-0 rounded-full", market.mode === "delayed" ? "bg-gold" : "bg-info")} />
+      {marketLabel(market)}
     </p>
   );
+}
+
+export function MarketBadge({ mode }: { mode: MarketData["mode"] }) {
+  return <Badge tone={mode === "delayed" ? "gold" : "info"}>{mode === "delayed" ? "Delayed" : "Sample"}</Badge>;
 }
 
 export function Change({ value }: { value: number }) {

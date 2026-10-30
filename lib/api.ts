@@ -2,6 +2,7 @@
 // If the backend can't be reached, pages fall back to the sample content in lib/data.ts.
 import "server-only";
 import { articles as sampleArticles, getArticle as getSampleArticle, type Article } from "./data";
+import { sampleMarkets, type MarketData } from "./markets";
 
 const API_URL = process.env.API_URL ?? "http://localhost:5173";
 const REVALIDATE_SECONDS = 30;
@@ -59,6 +60,12 @@ export async function getPost(slug: string): Promise<Article | undefined> {
   const post = await get<ApiPost>(`/api/public/posts/${encodeURIComponent(slug)}`);
   if (post) return toArticle(post);
   return post === undefined ? getSampleArticle(slug) : undefined;
+}
+
+/** Cached prices from the backend. Falls back to clearly labelled sample values. */
+export async function getMarkets(): Promise<MarketData> {
+  const data = await get<MarketData>("/api/public/markets");
+  return data?.quotes?.length ? data : sampleMarkets;
 }
 
 export async function getSite(): Promise<SiteContent> {
