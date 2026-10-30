@@ -4,11 +4,11 @@ import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { NewsletterForm } from "./layout";
 import { ArticleCard, cn } from "./ui";
-import { articles, categories } from "@/lib/data";
+import { categories, type Article } from "@/lib/data";
 
 const PAGE_SIZE = 6;
 
-export function BlogBrowser() {
+export function BlogBrowser({ posts }: { posts: Article[] }) {
   const initial = useSearchParams().get("category");
   const [category, setCategory] = useState<string>(initial && (categories as readonly string[]).includes(initial) ? initial : "All");
   const [query, setQuery] = useState("");
@@ -16,8 +16,8 @@ export function BlogBrowser() {
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return articles.filter((a) => (category === "All" || a.category === category) && (a.title + a.excerpt).toLowerCase().includes(q));
-  }, [category, query]);
+    return posts.filter((a) => (category === "All" || a.category === category) && (a.title + a.excerpt).toLowerCase().includes(q));
+  }, [posts, category, query]);
 
   const pick = (c: string) => {
     setCategory(c);
@@ -78,7 +78,7 @@ export function BlogBrowser() {
               <li key={c}>
                 <button onClick={() => pick(c)} className={cn("flex w-full justify-between rounded-lg px-3 py-2 text-sm hover:bg-white/5", c === category && "text-gold")}>
                   {c}
-                  <span className="num text-muted">{articles.filter((a) => a.category === c).length}</span>
+                  <span className="num text-muted">{posts.filter((a) => a.category === c).length}</span>
                 </button>
               </li>
             ))}

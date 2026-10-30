@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { postToBackend } from "@/lib/submit";
 import { cn } from "./ui";
 
 type Field = "name" | "email" | "category" | "subject" | "message";
@@ -19,6 +20,7 @@ export function ContactForm() {
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [failure, setFailure] = useState("");
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,11 +34,16 @@ export function ContactForm() {
     setSent(false);
     if (Object.keys(next).length) return;
     setSending(true);
-    // TODO: send to the Node.js API once the backend is built.
-    await new Promise((r) => setTimeout(r, 700));
-    setSending(false);
-    setSent(true);
-    form.reset();
+    setFailure("");
+    try {
+      await postToBackend("messages", data);
+      setSent(true);
+      form.reset();
+    } catch (err) {
+      setFailure((err as Error).message);
+    } finally {
+      setSending(false);
+    }
   }
 
   const field = (name: Field, label: string, input: React.ReactNode) => (
@@ -51,6 +58,7 @@ export function ContactForm() {
   return (
     <form noValidate onSubmit={submit} className="card space-y-5 p-6 sm:p-8">
       {sent && <p role="status" className="rounded-xl border border-bull/40 bg-bull/10 p-4 text-sm text-green-300">Thanks — your message has been sent. We'll reply within one business day.</p>}
+      {failure && <p role="alert" className="rounded-xl border border-bear/40 bg-bear/10 p-4 text-sm text-red-300">{failure}</p>}
       {Object.keys(errors).length > 0 && <p role="alert" className="rounded-xl border border-bear/40 bg-bear/10 p-4 text-sm text-red-300">Please fix the highlighted fields.</p>}
       <div className="grid gap-5 sm:grid-cols-2">
         {field("name", "Full name", <input name="name" className={cls("name")} placeholder="Jane Doe" autoComplete="name" />)}

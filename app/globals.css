@@ -73,6 +73,29 @@
   .prose-article p {
     @apply mb-5 text-[17px] leading-8 text-slate-700;
   }
+  .prose-article h3 {
+    @apply mt-8 mb-2 text-xl font-bold text-navy;
+  }
+  .prose-article ul,
+  .prose-article ol {
+    @apply mb-5 list-disc space-y-1 pl-6 text-[17px] leading-8 text-slate-700;
+  }
+  .prose-article a {
+    @apply font-medium text-amber-700 underline;
+  }
+  .prose-article img {
+    @apply my-6 rounded-2xl;
+  }
+  .prose-article table {
+    @apply mb-6 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white text-sm;
+  }
+  .prose-article th,
+  .prose-article td {
+    @apply border-b border-slate-200 p-3 text-left;
+  }
+  .prose-article .callout {
+    @apply my-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-[15px] leading-7 text-slate-700;
+  }
   .prose-article blockquote {
     @apply my-8 border-l-4 border-gold pl-5 text-xl font-medium text-navy italic;
   }

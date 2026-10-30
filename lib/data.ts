@@ -4,13 +4,15 @@
 export type Market = { symbol: string; name: string; price: string; change: number; seed: number };
 export type Article = {
   slug: string;
-  category: Category;
+  category: string;
   title: string;
   excerpt: string;
-  author: AuthorId;
+  author: string;
   date: string;
   minutes: number;
-  label: "Analysis" | "Education";
+  label: string;
+  /** HTML from the CMS; sample articles use the built-in template body instead. */
+  body?: string;
 };
 export type NewsItem = { time: string; title: string; category: string; label: "Verified report" | "Analysis"; source: string };
 export type CalendarEvent = { date: string; country: string; event: string; impact: "High" | "Medium" | "Low"; forecast: string; previous: string };
@@ -51,7 +53,7 @@ export const tickerItems: Pick<Market, "symbol" | "price" | "change">[] = [
   { symbol: "WTI", price: "69.42", change: -0.86 },
 ];
 
-export const articles: Article[] = [
+const sampleArticles: (Omit<Article, "author"> & { author: AuthorId })[] = [
   { slug: "central-banks-buying-gold", category: "Gold Analysis", title: "Why central banks keep buying gold — and what it means for price floors", excerpt: "Official-sector demand has reshaped gold's downside. We quantify the effect.", author: "SM", date: "Oct 30, 2026", minutes: 8, label: "Analysis" },
   { slug: "eurusd-policy-divergence", category: "Forex Trading", title: "EUR/USD: policy divergence returns as ECB signals faster easing", excerpt: "Rate expectations are pulling the euro toward the bottom of its range.", author: "JL", date: "Oct 29, 2026", minutes: 6, label: "Analysis" },
   { slug: "bitcoin-etf-flows", category: "Bitcoin & Crypto", title: "Spot Bitcoin ETF flows: reading the signal through the noise", excerpt: "Daily flow data is volatile. A rolling view tells a clearer story.", author: "DK", date: "Oct 28, 2026", minutes: 7, label: "Analysis" },
@@ -88,5 +90,7 @@ export const fxLevels = [
   { pair: "AUD/USD", trend: "Bearish", support: "0.6550", resistance: "0.6680" },
   { pair: "USD/CAD", trend: "Neutral", support: "1.3780", resistance: "1.3920" },
 ] as const;
+
+export const articles: Article[] = sampleArticles.map((a) => ({ ...a, author: authors[a.author].name }));
 
 export const getArticle = (slug: string) => articles.find((a) => a.slug === slug);

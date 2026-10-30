@@ -2,16 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleCard, Avatar, LineChart, Thumb } from "@/components/ui";
-import { articles, authors, getArticle } from "@/lib/data";
+import { getPost, getPosts } from "@/lib/api";
+import { authors } from "@/lib/data";
 
 type Props = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return articles.map((a) => ({ slug: a.slug }));
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const a = getArticle((await params).slug);
+  const a = await getPost((await params).slug);
   return a ? { title: a.title, description: a.excerpt } : {};
 }
 
@@ -19,10 +16,10 @@ const toc = ["Summary", "Macro backdrop", "Technical picture", "Scenarios", "Wha
 const anchor = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
 
 export default async function ArticlePage({ params }: Props) {
-  const a = getArticle((await params).slug);
+  const a = await getPost((await params).slug);
   if (!a) notFound();
-  const author = authors[a.author];
-  const related = articles.filter((x) => x.slug !== a.slug).sort((x) => (x.category === a.category ? -1 : 1)).slice(0, 3);
+  const role = Object.values(authors).find((x) => x.name === a.author)?.role ?? "Aurum Markets";
+  const related = (await getPosts()).filter((x) => x.slug !== a.slug).sort((x) => (x.category === a.category ? -1 : 1)).slice(0, 3);
 
   return (
     <div className="bg-slate-50 text-navy">
@@ -31,8 +28,8 @@ export default async function ArticlePage({ params }: Props) {
           <Link href="/" className="hover:text-navy">Home</Link>/<Link href="/blog" className="hover:text-navy">Blog</Link>/<span>{a.category}</span>
         </nav>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-[200px_minmax(0,720px)] lg:justify-center xl:gap-16">
-          <aside className="hidden lg:block">
+        <div className="mt-8 grid gap-10 lg:grid-cols-[auto_minmax(0,720px)] lg:justify-center xl:gap-16">
+          <aside className={a.body ? "hidden" : "hidden lg:block"}>
             <div className="sticky top-24">
               <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">On this page</p>
               <ul className="mt-4 space-y-2 border-l border-slate-200 text-sm">
@@ -51,15 +48,19 @@ export default async function ArticlePage({ params }: Props) {
             <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl lg:text-5xl">{a.title}</h1>
             <p className="mt-4 text-lg text-slate-600">{a.excerpt}</p>
             <div className="mt-6 flex items-center gap-3 border-y border-slate-200 py-4 text-sm text-slate-500">
-              <Avatar id={a.author} />
+              <Avatar name={a.author} />
               <div>
-                <b className="text-navy">{author.name}</b> · {author.role}
+                <b className="text-navy">{a.author}</b> · {role}
                 <br />
                 {a.date} · {a.minutes} min read
               </div>
             </div>
             <Thumb category={a.category} className="mt-8 aspect-[16/9] rounded-2xl" />
 
+            {a.body ? (
+              // Post HTML is sanitised by the backend when it is saved.
+              <div className="prose-article mt-10" dangerouslySetInnerHTML={{ __html: a.body }} />
+            ) : (
             <div className="prose-article mt-10">
               <h2 id="summary">Summary</h2>
               <p>Gold has consolidated in a tight range just above $2,700 an ounce, supported by easing real yields and persistent official-sector demand. Momentum has slowed, however, and positioning suggests much of the good news may already be reflected in price.</p>
@@ -91,13 +92,14 @@ export default async function ArticlePage({ params }: Props) {
               <h2 id="what-to-watch">What to watch</h2>
               <p>US CPI, the FOMC decision and quarterly central-bank reserve data are the key catalysts over the next three weeks.</p>
             </div>
+            )}
             <p className="mt-8 rounded-xl bg-slate-100 p-5 text-sm text-slate-600">This article is educational market commentary and is not investment advice. Past performance is not a reliable indicator of future results.</p>
             <div className="mt-8 flex gap-4 rounded-2xl border border-slate-200 bg-white p-6">
-              <Avatar id={a.author} size="lg" />
+              <Avatar name={a.author} size="lg" />
               <div>
-                <b>{author.name}</b>
-                <p className="text-sm text-slate-500">{author.role}</p>
-                <p className="mt-2 text-sm text-slate-600">Covers precious metals, real yields and central-bank flows for Aurum Markets.</p>
+                <b>{a.author}</b>
+                <p className="text-sm text-slate-500">{role}</p>
+                
               </div>
             </div>
           </article>

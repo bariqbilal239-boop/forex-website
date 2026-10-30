@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { tickerItems } from "@/lib/data";
+import { postToBackend } from "@/lib/submit";
 import { cn } from "./ui";
 
 export const navLinks = [
@@ -135,25 +136,32 @@ export function MobileTabBar() {
 }
 
 export function NewsletterForm({ compact }: { compact?: boolean }) {
-  const [state, setState] = useState<"idle" | "ok" | "error">("idle");
+  const [state, setState] = useState<"idle" | "sending" | "ok" | "invalid" | "failed">("idle");
   return (
     <form
       noValidate
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
         const input = e.currentTarget.elements.namedItem("email") as HTMLInputElement;
-        const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
-        setState(ok ? "ok" : "error");
-        if (ok) input.value = "";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) return setState("invalid");
+        setState("sending");
+        try {
+          await postToBackend("subscribers", { email: input.value, source: location.pathname });
+          setState("ok");
+          input.value = "";
+        } catch {
+          setState("failed");
+        }
       }}
     >
       <div className={cn("flex gap-3", compact ? "flex-col" : "flex-col sm:flex-row")}>
-        <input name="email" type="email" className={cn("input", state === "error" && "border-bear")} placeholder="Enter your email address" aria-label="Email address" />
-        <button className="btn-gold shrink-0">Subscribe</button>
+        <input name="email" type="email" className={cn("input", state === "invalid" && "border-bear")} placeholder="Enter your email address" aria-label="Email address" />
+        <button disabled={state === "sending"} className="btn-gold shrink-0">{state === "sending" ? "Subscribing…" : "Subscribe"}</button>
       </div>
       <p role="status" className={cn("mt-3 text-sm", state === "ok" ? "text-green-400" : "text-red-400")}>
-        {state === "ok" && "You're subscribed. Check your inbox to confirm."}
-        {state === "error" && "Please enter a valid email address."}
+        {state === "ok" && "You're subscribed. Thanks for joining the Daily Gold Brief."}
+        {state === "invalid" && "Please enter a valid email address."}
+        {state === "failed" && "We couldn't subscribe you right now. Please try again."}
       </p>
     </form>
   );

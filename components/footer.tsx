@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getSite } from "@/lib/api";
 import { Logo } from "./layout";
 
 const columns = [
@@ -7,7 +8,11 @@ const columns = [
   { title: "Company", links: [["About Us", "/about"], ["Editorial Standards", "/about#standards"], ["Contact", "/contact"]] },
 ];
 
-export function Footer() {
+const DEFAULT_DISCLAIMER =
+  "Trading foreign exchange, gold, cryptocurrencies and other leveraged products carries a high level of risk and may not be suitable for all investors. You could lose some or all of your capital. Content on this website is for educational and informational purposes only and is not investment advice.";
+
+export async function Footer() {
+  const site = await getSite();
   return (
     <footer className="mt-24 border-t border-line bg-midnight pb-24 md:pb-0">
       <div className="container-x py-14">
@@ -35,7 +40,7 @@ export function Footer() {
           ))}
         </div>
         <p className="mt-12 rounded-xl border border-line p-5 text-xs leading-relaxed text-muted">
-          <b className="text-ink">Risk disclaimer:</b> Trading foreign exchange, gold, cryptocurrencies and other leveraged products carries a high level of risk and may not be suitable for all investors. You could lose some or all of your capital. Content on this website is for educational and informational purposes only and is not investment advice. Prices shown are illustrative samples, not live quotes.
+          <b className="text-ink">Risk disclaimer:</b> {site.disclaimer || DEFAULT_DISCLAIMER} Prices shown are illustrative samples, not live quotes.
         </p>
         <div className="mt-8 flex flex-col gap-2 text-xs text-muted sm:flex-row sm:justify-between">
           <span>© 2026 Aurum Markets. All rights reserved.</span>

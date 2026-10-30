@@ -38,7 +38,7 @@ export default function AboutPage() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {(Object.keys(authors) as AuthorId[]).map((id) => (
               <div key={id} className="card flex items-center gap-4 p-5 lg:flex-col lg:text-center">
-                <Avatar id={id} size="lg" />
+                <Avatar name={authors[id].name} size="lg" />
                 <div>
                   <b>{authors[id].name}</b>
                   <p className="text-sm text-muted">{authors[id].role}</p>

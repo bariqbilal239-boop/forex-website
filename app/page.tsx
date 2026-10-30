@@ -1,16 +1,20 @@
 import Link from "next/link";
 import { NewsletterForm } from "@/components/layout";
 import { ArticleCard, Badge, Change, LineChart, SampleNote, SectionHeading, Thumb, cn } from "@/components/ui";
-import { articles, events, fxLevels, markets, news } from "@/lib/data";
+import { getPosts, getSite } from "@/lib/api";
+import { events, fxLevels, markets, news } from "@/lib/data";
 
-const stats = [
-  ["12+", "Years of coverage"],
-  ["2,400+", "Published analyses"],
-  ["85k", "Newsletter readers"],
-];
+const statLabels = ["Years of coverage", "Published analyses", "Newsletter readers"];
+const defaultStats = ["12+", "2,400+", "85k"];
 
-export default function HomePage() {
-  const featured = articles[0];
+/** Admin links are stored like "/gold"; external links pass through. */
+const toHref = (link?: string) => (link && ((link.startsWith("/") && !link.startsWith("//")) || link.startsWith("https://")) ? link : "/gold");
+
+export default async function HomePage() {
+  const [posts, site] = await Promise.all([getPosts(), getSite()]);
+  const hero = site.hero ?? {};
+  const stats = statLabels.map((label, i) => [hero.stats?.[i] || defaultStats[i], label]);
+  const featured = posts[0];
   return (
     <>
       {/* Hero */}
@@ -19,17 +23,17 @@ export default function HomePage() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgb(255_255_255/0.025)_1px,transparent_1px),linear-gradient(90deg,rgb(255_255_255/0.025)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent)]" />
         <div className="container-x relative grid items-center gap-12 py-16 sm:py-20 lg:grid-cols-[1.1fr_1fr] lg:py-28">
           <div>
-            <span className="eyebrow">Gold · Forex · Bitcoin · Global Macro</span>
+            <span className="eyebrow">{hero.eyebrow || "Gold · Forex · Bitcoin · Global Macro"}</span>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Trade Smarter.
+              {hero.headline || "Trade Smarter."}
               <br />
-              <em className="bg-gradient-to-r from-gold-light to-gold bg-clip-text not-italic text-transparent">Understand the Markets.</em>
+              <em className="bg-gradient-to-r from-gold-light to-gold bg-clip-text not-italic text-transparent">{hero.highlight || "Understand the Markets."}</em>
             </h1>
             <p className="mt-6 max-w-xl text-lg text-muted">
-              Institutional-grade research on gold, Bitcoin and major currency pairs — daily technical analysis, macro context and the news that moves prices.
+              {hero.text || "Institutional-grade research on gold, Bitcoin and major currency pairs — daily technical analysis, macro context and the news that moves prices."}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/gold" className="btn-gold">Explore Gold Analysis →</Link>
+              <Link href={toHref(hero.link)} className="btn-gold">{hero.button || "Explore Gold Analysis"} →</Link>
               <Link href="/news" className="btn-ghost">Latest Market News</Link>
             </div>
             <dl className="mt-10 grid max-w-md grid-cols-3 gap-4 border-t border-line pt-6">
@@ -87,6 +91,7 @@ export default function HomePage() {
       </section>
 
       {/* Featured gold analysis */}
+      {featured && (
       <section className="container-x">
         <Link href={`/blog/${featured.slug}`} className="card group grid overflow-hidden lg:grid-cols-2">
           <Thumb category={featured.category} className="min-h-56 lg:min-h-full" />
@@ -106,6 +111,7 @@ export default function HomePage() {
           </div>
         </Link>
       </section>
+      )}
 
       {/* Forex table */}
       <section className="container-x py-16 sm:py-20">
@@ -167,7 +173,7 @@ export default function HomePage() {
       <section className="container-x py-16 sm:py-20">
         <SectionHeading eyebrow="Research library" title="Latest analysis" action={<Link href="/blog" className="text-sm font-semibold text-gold">View all →</Link>} />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.slice(1, 4).map((a) => <ArticleCard key={a.slug} article={a} />)}
+          {posts.slice(1, 4).map((a) => <ArticleCard key={a.slug} article={a} />)}
         </div>
       </section>
 

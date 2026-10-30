@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { series, toPath } from "@/lib/chart";
-import { authors, type Article, type AuthorId } from "@/lib/data";
+import type { Article } from "@/lib/data";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -85,9 +85,11 @@ export function LineChart({ seed, points = 90, start = 100, up = true, className
   );
 }
 
-export function Avatar({ id, size = "sm" }: { id: AuthorId; size?: "sm" | "lg" }) {
+const initials = (name: string) => name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+
+export function Avatar({ name, size = "sm" }: { name: string; size?: "sm" | "lg" }) {
   return (
-    <span className={cn("grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold to-[#6b5413] font-bold text-navy", size === "sm" ? "h-8 w-8 text-xs" : "h-14 w-14 text-lg")}>{id}</span>
+    <span className={cn("grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold to-[#6b5413] font-bold text-navy", size === "sm" ? "h-8 w-8 text-xs" : "h-14 w-14 text-lg")}>{initials(name)}</span>
   );
 }
 
@@ -127,9 +129,9 @@ export function ArticleCard({ article, light }: { article: Article; light?: bool
         <h3 className={cn("mt-3 text-lg font-bold leading-snug group-hover:text-gold", light && "text-navy")}>{a.title}</h3>
         <p className={cn("mt-2 line-clamp-2 text-sm", light ? "text-slate-600" : "text-muted")}>{a.excerpt}</p>
         <div className={cn("mt-auto flex items-center gap-2 pt-5 text-xs", light ? "text-slate-500" : "text-muted")}>
-          <Avatar id={a.author} />
+          <Avatar name={a.author} />
           <span>
-            {authors[a.author].name} · {a.date} · {a.minutes} min
+            {a.author} · {a.date} · {a.minutes} min
           </span>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { GoldCalculator, GoldChart } from "@/components/gold-tools";
 import { ArticleCard, Badge, Change, SampleNote } from "@/components/ui";
-import { articles } from "@/lib/data";
+import { getPosts } from "@/lib/api";
 
 export const metadata: Metadata = { title: "Gold Rates & Analysis" };
 
@@ -22,7 +22,9 @@ const factors = [
   ["Geopolitics", "Safe-haven demand elevated.", "Supportive"],
 ];
 
-export default function GoldPage() {
+export default async function GoldPage() {
+  const posts = await getPosts();
+  const goldPosts = posts.filter((a) => /gold/i.test(a.category + a.title));
   return (
     <>
       <section className="border-b border-line bg-[radial-gradient(circle_at_80%_0%,rgb(212_175_55/0.14),transparent_55%)]">
@@ -92,7 +94,7 @@ export default function GoldPage() {
         <section>
           <h2 className="mb-6 text-2xl font-bold tracking-tight">Latest gold analysis</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {articles.filter((a) => a.category.includes("Gold") || a.category === "Fundamental Analysis").slice(0, 3).map((a) => <ArticleCard key={a.slug} article={a} />)}
+            {(goldPosts.length ? goldPosts : posts).slice(0, 3).map((a) => <ArticleCard key={a.slug} article={a} />)}
           </div>
         </section>
 
