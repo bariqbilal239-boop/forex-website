@@ -1,40 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { LineChart, cn } from "./ui";
-
-const ranges = [
-  { key: "1D", points: 48, seed: 21 },
-  { key: "1W", points: 60, seed: 7 },
-  { key: "1M", points: 80, seed: 17 },
-  { key: "6M", points: 120, seed: 29 },
-  { key: "1Y", points: 160, seed: 41 },
-];
+import { TradingViewChart } from "./tradingview-chart";
 
 export function GoldChart() {
-  const [range, setRange] = useState(ranges[2]);
   return (
-    <div className="card p-5 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-semibold">XAU/USD price chart</h2>
-        <div className="flex rounded-xl border border-line p-1" role="tablist" aria-label="Time range">
-          {ranges.map((r) => (
-            <button
-              key={r.key}
-              role="tab"
-              aria-selected={r.key === range.key}
-              onClick={() => setRange(r)}
-              className={cn("rounded-lg px-3 py-1.5 text-xs font-semibold", r.key === range.key ? "bg-gold text-navy" : "text-muted hover:text-ink")}
-            >
-              {r.key}
-            </button>
-          ))}
-        </div>
+    <div className="card p-3 sm:p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-2 pt-1 pb-3">
+        <h2 className="font-semibold">XAU/USD live chart</h2>
+        <span className="flex items-center gap-2 text-xs text-muted">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-bull" />
+          Live from TradingView
+        </span>
       </div>
-      <div className="mt-6 h-64 sm:h-80">
-        <LineChart key={range.key} seed={range.seed} points={range.points} start={2650} />
-      </div>
-      <p className="mt-3 text-xs text-muted">Illustrative chart — not live price history</p>
+      <TradingViewChart symbol="OANDA:XAUUSD" className="h-[420px] sm:h-[520px] lg:h-[600px]" />
+      <p className="px-2 pt-3 text-xs text-muted">
+        <a href="https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA" target="_blank" rel="noopener nofollow" className="text-gold hover:underline">XAU/USD chart</a> by TradingView
+      </p>
     </div>
   );
 }
@@ -52,7 +34,7 @@ export function GoldCalculator({ spot, fx, delayed }: { spot: number; fx: Record
   const value = Number.isFinite(amount) && amount > 0 ? spot * units[unit] * (fx[cur] ?? 1) * karats[karat] * amount : 0;
 
   return (
-    <section className="card grid gap-8 p-6 sm:p-8 lg:grid-cols-[1fr_1fr]">
+    <section className="card grid gap-8 p-6 sm:p-8 xl:grid-cols-[1fr_1fr]">
       <div>
         <span className="eyebrow">Gold calculator</span>
         <h2 className="mt-3 text-2xl font-bold tracking-tight">Convert gold to your local price</h2>

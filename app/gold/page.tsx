@@ -45,8 +45,8 @@ export default async function GoldPage() {
       </section>
 
       <div className="container-x space-y-10 py-12">
-        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-          <GoldChart />
+        <GoldChart />
+        <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
           <div className="card p-6">
             <h2 className="font-semibold">Key levels</h2>
             <ul className="mt-4 space-y-2">
@@ -59,9 +59,8 @@ export default async function GoldPage() {
             </ul>
             <p className="mt-4 text-sm text-muted">Trend: <b className="text-green-400">Bullish</b> above 2,705.</p>
           </div>
+          <GoldCalculator spot={gold.price} fx={market.fx} delayed={market.mode === "delayed"} />
         </div>
-
-        <GoldCalculator spot={gold.price} fx={market.fx} delayed={market.mode === "delayed"} />
 
         <section>
           <h2 className="mb-6 text-2xl font-bold tracking-tight">Scenarios</h2>
@@ -102,7 +101,7 @@ export default async function GoldPage() {
         </section>
 
         <p className="rounded-xl border border-line p-5 text-xs leading-relaxed text-muted">
-          <b className="text-ink">Educational disclaimer:</b> Gold analysis on this page is for educational purposes only. Scenarios and levels are not guarantees of future performance. Charts are illustrative; prices are delayed or sample values and must not be used for trading.
+          <b className="text-ink">Educational disclaimer:</b> Gold analysis on this page is for educational purposes only. Scenarios and levels are not guarantees of future performance. The live chart is provided by TradingView; other prices on this page are delayed or sample values and must not be used for trading.
         </p>
       </div>
     </>
