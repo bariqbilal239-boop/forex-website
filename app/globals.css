@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #0b1220;
+  --color-midnight: #111827;
+  --color-card: #182230;
+  --color-line: #243044;
+  --color-gold: #d4af37;
+  --color-gold-light: #f0d77a;
+  --color-gold-dark: #b8921f;
+  --color-ink: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-bull: #16a34a;
+  --color-bear: #dc2626;
+  --color-info: #3b82f6;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-navy font-sans text-ink antialiased;
+  }
+  ::selection {
+    @apply bg-gold/30;
+  }
+}
+
+/* Reusable building blocks */
+@utility container-x {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+@utility card {
+  @apply rounded-2xl border border-line bg-card/60 shadow-[0_20px_40px_-24px_rgb(0_0_0/0.6)];
+}
+@utility eyebrow {
+  @apply inline-flex items-center gap-2 text-xs font-semibold tracking-[0.14em] text-gold uppercase;
+  &::before {
+    content: "";
+    @apply h-px w-6 bg-gold;
+  }
+}
+@utility btn {
+  @apply inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:opacity-60;
+}
+@utility btn-gold {
+  @apply btn bg-gradient-to-br from-gold-light to-gold-dark text-navy hover:brightness-110;
+}
+@utility btn-ghost {
+  @apply btn border border-line text-ink hover:border-gold/60 hover:text-gold;
+}
+@utility input {
+  @apply h-11 w-full rounded-xl border border-line bg-midnight px-4 text-sm text-ink outline-none transition placeholder:text-muted/70 focus:border-gold;
+}
+@utility num {
+  @apply font-mono tabular-nums;
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .prose-article h2 {
+    @apply mt-10 mb-3 scroll-mt-24 text-2xl font-bold tracking-tight text-navy;
+  }
+  .prose-article p {
+    @apply mb-5 text-[17px] leading-8 text-slate-700;
+  }
+  .prose-article blockquote {
+    @apply my-8 border-l-4 border-gold pl-5 text-xl font-medium text-navy italic;
+  }
+}
+
+@keyframes ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-ticker {
+  animation: ticker 60s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-ticker {
+    animation: none;
+  }
+}
