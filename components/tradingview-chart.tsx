@@ -91,3 +91,33 @@ export function TradingViewPrice({ symbol = "OANDA:XAUUSD", range = "1D", classN
     />
   );
 }
+
+/** TradingView symbols used across the site. */
+export const LIVE_SYMBOLS = [
+  { proName: "OANDA:XAUUSD", title: "Gold" },
+  { proName: "OANDA:XAGUSD", title: "Silver" },
+  { proName: "FX:EURUSD", title: "EUR/USD" },
+  { proName: "FX:GBPUSD", title: "GBP/USD" },
+  { proName: "FX:USDJPY", title: "USD/JPY" },
+  { proName: "BITSTAMP:BTCUSD", title: "Bitcoin" },
+  { proName: "BITSTAMP:ETHUSD", title: "Ethereum" },
+  { proName: "TVC:DXY", title: "US Dollar Index" },
+];
+
+/** Scrolling live price strip shown at the top of every page. */
+export function TradingViewTicker({ className }: { className?: string }) {
+  return (
+    <TradingViewWidget
+      widget="ticker-tape"
+      className={cn("h-[46px] border-b border-line bg-midnight", className)}
+      config={{
+        symbols: LIVE_SYMBOLS,
+        showSymbolLogo: true,
+        isTransparent: true,
+        displayMode: "adaptive",
+        colorTheme: "dark",
+        locale: "en",
+      }}
+    />
+  );
+}

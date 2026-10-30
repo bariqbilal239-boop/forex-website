@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { NewsletterForm } from "@/components/layout";
 import { TradingViewPrice } from "@/components/tradingview-chart";
-import { ArticleCard, Badge, Change, LineChart, MarketNote, SectionHeading, Thumb, cn } from "@/components/ui";
-import { getMarkets, getPosts, getSite } from "@/lib/api";
+import { ArticleCard, Badge, SectionHeading, Thumb, cn } from "@/components/ui";
+import { getPosts, getSite } from "@/lib/api";
 import { events, fxLevels, news } from "@/lib/data";
-import { findQuote, formatPrice } from "@/lib/markets";
 
-const OVERVIEW = ["XAU/USD", "BTC/USD", "EUR/USD", "GBP/USD", "USD/JPY"];
+const OVERVIEW = ["OANDA:XAUUSD", "BITSTAMP:BTCUSD", "FX:EURUSD", "FX:GBPUSD", "FX:USDJPY"];
 
 const statLabels = ["Years of coverage", "Published analyses", "Newsletter readers"];
 const defaultStats = ["12+", "2,400+", "85k"];
@@ -15,8 +14,7 @@ const defaultStats = ["12+", "2,400+", "85k"];
 const toHref = (link?: string) => (link && ((link.startsWith("/") && !link.startsWith("//")) || link.startsWith("https://")) ? link : "/gold");
 
 export default async function HomePage() {
-  const [posts, site, market] = await Promise.all([getPosts(), getSite(), getMarkets()]);
-  const overview = OVERVIEW.map((s) => findQuote(market, s)).filter((q) => q !== undefined);
+  const [posts, site] = await Promise.all([getPosts(), getSite()]);
   const hero = site.hero ?? {};
   const stats = statLabels.map((label, i) => [hero.stats?.[i] || defaultStats[i], label]);
   const featured = posts[0];
@@ -66,19 +64,11 @@ export default async function HomePage() {
 
       {/* Market overview */}
       <section className="container-x py-16 sm:py-20">
-        <SectionHeading eyebrow="Market overview" title="Key markets at a glance" action={<MarketNote market={market} />} />
+        <SectionHeading eyebrow="Market overview" title="Key markets at a glance" action={<p className="flex items-center gap-2 text-xs text-muted"><span className="h-2 w-2 animate-pulse rounded-full bg-green-400" />Live prices by TradingView</p>} />
         <div className="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-5">
-          {overview.map((m, i) => (
-            <div key={m.symbol} className="card min-w-[72%] snap-start p-5 sm:min-w-0">
-              <div className="flex items-center justify-between">
-                <b>{m.symbol}</b>
-                <Change value={m.change} />
-              </div>
-              <p className="text-xs text-muted">{m.name}</p>
-              <p className="num mt-3 text-2xl font-bold">{formatPrice(m.symbol, m.price)}</p>
-              <div className="mt-3 h-14">
-                <LineChart seed={i * 4 + 3} points={40} up={m.change >= 0} />
-              </div>
+          {OVERVIEW.map((symbol) => (
+            <div key={symbol} className="card min-w-[78%] snap-start p-2 sm:min-w-0">
+              <TradingViewPrice symbol={symbol} className="h-[190px]" />
             </div>
           ))}
         </div>

@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Footer } from "@/components/footer";
-import { Header, MobileTabBar, Ticker } from "@/components/layout";
-import { getMarkets } from "@/lib/api";
+import { Header, MobileTabBar } from "@/components/layout";
+import { TradingViewTicker } from "@/components/tradingview-chart";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -15,12 +15,11 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#0B1220" };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const market = await getMarkets();
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${mono.variable}`}>
       <body>
-        <Ticker market={market} />
+        <TradingViewTicker />
         <Header />
         <main>{children}</main>
         <Footer />

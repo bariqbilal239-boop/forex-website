@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { formatPrice, type MarketData } from "@/lib/markets";
 import { postToBackend } from "@/lib/submit";
 import { cn } from "./ui";
 
@@ -26,29 +25,6 @@ export function Logo() {
         Aurum<span className="ml-1 text-xs font-semibold uppercase tracking-widest text-muted">Markets</span>
       </span>
     </Link>
-  );
-}
-
-export function Ticker({ market }: { market: MarketData }) {
-  const quotes = market.quotes;
-  const items = [...quotes, ...quotes];
-  const note = market.mode === "delayed" ? `Delayed data · ${market.source}` : "Illustrative sample data";
-  return (
-    <div className="overflow-hidden border-b border-line bg-midnight text-xs" aria-label={`Market ticker — ${note}`}>
-      <div className="animate-ticker flex w-max gap-8 py-2 pl-4">
-        {items.map((m, i) => (
-          <span key={i} className="flex items-center gap-2 whitespace-nowrap">
-            <b>{m.symbol}</b>
-            <span className="num text-muted">{formatPrice(m.symbol, m.price)}</span>
-            <span className={cn("num", m.change >= 0 ? "text-green-400" : "text-red-400")}>
-              {m.change >= 0 ? "+" : ""}
-              {m.change.toFixed(2)}%
-            </span>
-            {i % quotes.length === quotes.length - 1 && <span className="text-muted/70">· {note}</span>}
-          </span>
-        ))}
-      </div>
-    </div>
   );
 }
 
